@@ -15,6 +15,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   syncfusion_flutter_charts: ^25.1.41+1
+  intl: ^0.18.1
+  sqflite: ^2.0.0+4
+  path_provider: ^2.0.8
+  provider: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +35,6 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/logo.png
+    - assets/yellowDecoration.jpg
+    - assets/greenDecoration.jpg

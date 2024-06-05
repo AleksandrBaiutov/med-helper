@@ -11,6 +11,8 @@ import 'login_page.dart';
 import 'main_page.dart';
 import 'profile_page.dart';
 import 'analyses_page.dart';
+import 'add_analyses_page.dart';
+import 'registration_page.dart';
 
 
 
@@ -44,13 +46,15 @@ class MyApp extends StatelessWidget {
       initialRoute: LoginPage.routeName,
       routes: {
         LoginPage.routeName: (context) => LoginPage(),
+        AddAnalysisPage.routeName: (context) => AddAnalysisPage(),
+        RegistrationPage.routeName: (context) => RegistrationPage(),
         SettingsView.routeName: (context) =>
             SettingsView(controller: settingsController),
         SampleItemDetailsView.routeName: (context) => const SampleItemDetailsView(),
-        MainPage.routeName: (context) => _buildPageWithNavigationBar(context, const MainPage()),
+        MainPage.routeName: (context) => _buildPageWithNavigationBar(context, MainPage()),
         SampleItemListView.routeName: (context) =>
             _buildPageWithNavigationBar(context, const SampleItemListView()),
-        AnalysesPage.routeName: (context) => _buildPageWithNavigationBar(context, AnalysesPage()),
+        AnalysisPage.routeName: (context) => _buildPageWithNavigationBar(context, AnalysisPage()),
         ProfilePage.routeName: (context) => _buildPageWithNavigationBar(context, ProfilePage()),
       },
     );
@@ -63,7 +67,7 @@ class MyApp extends StatelessWidget {
         onTap: (int index) {
           switch (index) {
             case 1:
-              Navigator.pushNamed(context, AnalysesPage.routeName);
+              Navigator.pushNamed(context, AnalysisPage.routeName);
               break;
             case 2:
               Navigator.pushNamed(context, ProfilePage.routeName);
