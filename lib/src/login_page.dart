@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'main_page.dart';
 import 'registration_page.dart';
-import 'database_helper_users.dart';
+import 'database_helper.dart';
 
 
 class LoginPage extends StatefulWidget {

@@ -16,6 +16,7 @@ enum AnalysisType { iron, calcium, vitaminD }
 class _AnalysisPageState extends State<AnalysisPage> {
   AnalysisType _currentType = AnalysisType.iron;
   List<Analysis> _analyses = [];
+  Map<String, dynamic> info = {};
   bool _isChart = true; 
 
   @override
@@ -26,6 +27,10 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   Future<void> _loadAnalyses() async {
     final analyses = await DatabaseHelper.getAnalyses();
+    if (_currentType == AnalysisType.iron) info = await DatabaseHelper.getAnalysisInfo("iron");
+    if (_currentType == AnalysisType.calcium) info = await DatabaseHelper.getAnalysisInfo("calcium");
+    if (_currentType == AnalysisType.vitaminD) info = await DatabaseHelper.getAnalysisInfo("vitaminD");
+    
     _updateAnalyses(analyses);
   }
 
@@ -34,9 +39,10 @@ class _AnalysisPageState extends State<AnalysisPage> {
     if (_currentType == AnalysisType.iron) typeName = "Железо";
     if (_currentType == AnalysisType.calcium) typeName = "Кальций";
     if (_currentType == AnalysisType.vitaminD) typeName = "Витамин D";
-    final filteredAnalyses = analyses.where((analysis) => analysis.type == typeName).toList();
+    final filteredAnalyses = analyses
+      .where((analysis) => analysis.type == typeName && analysis.userId == UserSession.currentUser.userId)
+      .toList();
     filteredAnalyses.sort((a, b) => a.date.compareTo(b.date));
-    
     setState(() {
       _analyses = filteredAnalyses;
     });
@@ -96,47 +102,25 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
       return changes;
     }
+    final type = info['ruType'] ?? 'Неизвестно';
+    final measurementUnit = info['measurementUnit'] ?? '';
+    final lowerBound = info['lowerBound'] ?? double.negativeInfinity;
+    final upperBound = info['upperBound'] ?? double.infinity;
+    final lowValueAdvice = info['lowValueAdvice'] ?? '';
+    final highValueAdvice = info['highValueAdvice'] ?? '';
+    title = _isChart ? 'График $type ($measurementUnit)' : 'Таблица $type ($measurementUnit)';
+    final changes = analyzeChanges(_analyses, type, measurementUnit);
+    final changeRecommendation = changes.isNotEmpty ? changes.join('. ') : '';
+    recommendation = '';
 
-
-
-    switch (_currentType) {
-      case AnalysisType.iron:
-        title = _isChart ? 'График железа (мкг/дл)' : 'Таблица железа (мкг/дл)';
-        plotColor = Colors.red;
-        var changes = analyzeChanges(_analyses, "железа", "мкг/дл");
-        var changeRecommendation = changes.isNotEmpty ? changes.join('. ') : '';
-        recommendation = _analyses.isNotEmpty && _analyses.last.value < 2.0 
-          ? 'У вас слишком мало железа, съешьте яблоко и обратитесь к врачу'
-          : _analyses.isNotEmpty && _analyses.last.value > 4.5 
-          ? 'У вас слишком много железа, уменьшите потребление и обратитесь к врачу'
-          : 'У вас нормальное содержание железа';
-        recommendation += '. ' + changeRecommendation;
-        break;
-      case AnalysisType.calcium:
-        title = _isChart ? 'График кальция (мг/дл)' : 'Таблица кальция (мг/дл)';
-        plotColor = Colors.red;
-        var changes = analyzeChanges(_analyses, "кальция", "мг/дл");
-        var changeRecommendation = changes.isNotEmpty ? changes.join('. ') : '';
-        recommendation = _analyses.isNotEmpty && _analyses.last.value < 8.5 
-          ? 'У вас слишком мало кальция, употребляйте больше молочных продуктов и обратитесь к врачу'
-          : _analyses.isNotEmpty && _analyses.last.value > 10.2
-          ? 'У вас слишком много кальция, уменьшите потребление и обратитесь к врачу'
-          : 'У вас нормальное содержание кальция';
-        recommendation += '. ' + changeRecommendation;
-        break;
-      case AnalysisType.vitaminD:
-        title = _isChart ? 'График витамина D (нг/мл)' : 'Таблица витамина D (нг/мл)';
-        plotColor = Colors.red;
-        var changes = analyzeChanges(_analyses, "витамина D", "нг/мл");
-        var changeRecommendation = changes.isNotEmpty ? changes.join('. ') : '';
-        recommendation = _analyses.isNotEmpty && _analyses.last.value < 20.0 
-          ? 'У вас слишком мало витамина D, проведите больше времени на солнце и обратитесь к врачу'
-          : _analyses.isNotEmpty && _analyses.last.value > 50.0
-          ? 'У вас слишком много витамина D, уменьшите потребление добавок и обратитесь к врачу'
-          : 'У вас нормальное содержание витамина D';
-        recommendation += '. ' + changeRecommendation;
-        break;
+    if (_analyses.isNotEmpty && _analyses.last.value < lowerBound) {
+      recommendation = lowValueAdvice;
+    } else if (_analyses.isNotEmpty && _analyses.last.value > upperBound) {
+      recommendation = highValueAdvice;
+    } else {
+      recommendation = 'У вас нормальное содержание $type';
     }
+    recommendation += '. $changeRecommendation';
 
     
 
@@ -266,53 +250,64 @@ class _AnalysisPageState extends State<AnalysisPage> {
   }
 
   
-  Widget _buildTable() {
+Widget _buildTable() {
     List<Analysis> reversedAnalyses = List.from(_analyses.reversed);
-  return ListView.separated(
-    itemCount: _analyses.length,
-    separatorBuilder: (BuildContext context, int index) => Divider(),
-    itemBuilder: (BuildContext context, int index) {
-      final analysis = reversedAnalyses[index];;
-      Color valueColor;
 
-      if (_currentType == AnalysisType.iron) {
-        if (analysis.value < 2.0 || analysis.value > 4.5) {
-          valueColor = Colors.red;
-        } else {
-          valueColor = Colors.green;
-        }
-      } else if (_currentType == AnalysisType.calcium) {
-        if (analysis.value < 8.5 || analysis.value > 10.2) {
-          valueColor = Colors.red;
-        } else {
-          valueColor = Colors.green;
-        }
-      } else {
-        if (analysis.value < 20.0 || analysis.value > 50.0) {
-          valueColor = Colors.red;
-        } else {
-          valueColor = Colors.green;
-        }
-      }
+    return ListView.separated(
+      itemCount: _analyses.length,
+      separatorBuilder: (BuildContext context, int index) => Divider(),
+      itemBuilder: (BuildContext context, int index) {
+        final analysis = reversedAnalyses[index];
+        Color valueColor;
 
-      String formattedDate = '${analysis.date.toLocal().day.toString().padLeft(2, '0')}.${analysis.date.toLocal().month.toString().padLeft(2, '0')}.${analysis.date.toLocal().year}';
+        if (_currentType == AnalysisType.iron) {
+          if (analysis.value < 2.0 || analysis.value > 4.5) {
+            valueColor = Colors.red;
+          } else {
+            valueColor = Colors.green;
+          }
+        } else if (_currentType == AnalysisType.calcium) {
+          if (analysis.value < 8.5 || analysis.value > 10.2) {
+            valueColor = Colors.red;
+          } else {
+            valueColor = Colors.green;
+          }
+        } else {
+          if (analysis.value < 20.0 || analysis.value > 50.0) {
+            valueColor = Colors.red;
+          } else {
+            valueColor = Colors.green;
+          }
+        }
 
-      return ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              formattedDate,
-              style: TextStyle(color: Colors.black),
+        String formattedDate = '${analysis.date.toLocal().day.toString().padLeft(2, '0')}.${analysis.date.toLocal().month.toString().padLeft(2, '0')}.${analysis.date.toLocal().year}';
+
+        return ListTile(
+            title: Row(
+              children: [
+                Text(
+                  formattedDate,
+                  style: TextStyle(color: Colors.black),
+                ),
+                Spacer(),
+                Text(
+                  '${analysis.value}',
+                  style: TextStyle(color: valueColor),
+                ),
+                Spacer(),
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.red),
+                  onPressed: () async {
+                    await DatabaseHelper.deleteAnalysis(analysis.id);
+                    setState(() {
+                      _analyses.removeAt(_analyses.length - 1 - index);
+                    });
+                  },
+                ),
+              ],
             ),
-            Text(
-              '${analysis.value}',
-              style: TextStyle(color: valueColor),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+          );
+      },
+    );
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'login_page.dart';
-import 'database_helper_users.dart';
+import 'database_helper.dart';
 
 
 class MainPage extends StatelessWidget {
@@ -38,7 +38,7 @@ class MainPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Здравствуйте, ${UserSession.currentUser?.fullName}',
+                    'Здравствуйте, ${UserSession.currentUser.fullName}',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 24,
@@ -47,7 +47,8 @@ class MainPage extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Подписка активна: следующее списание 16.06.2024',
+
+                    'Подписка активна: следующее списание ${UserSession.currentUser.subscriptionStatus.toLocal().day.toString().padLeft(2, '0')}.${UserSession.currentUser.subscriptionStatus.toLocal().month.toString().padLeft(2, '0')}.${UserSession.currentUser.subscriptionStatus.toLocal().year}',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,

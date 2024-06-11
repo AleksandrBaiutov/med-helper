@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'database_helper_users.dart';
+import 'package:med_helper/src/login_page.dart';
+import 'database_helper.dart';
 
 
 class RegistrationPage extends StatefulWidget {
@@ -36,6 +37,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, LoginPage.routeName);
+          },
+        ),
         title: Text('Регистрация'),
         titleTextStyle: TextStyle(
           color: Colors.black,
