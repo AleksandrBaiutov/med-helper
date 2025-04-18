@@ -1,30 +1,33 @@
-# med_helper
+# Med Helper
 
-A new Flutter project.
+Мобильное приложение для отслеживания медицинских показателей с персонализированными рекомендациями.
 
-## Getting Started
+## 📌 Основные функции
+- 📊 Визуализация анализов (графики/таблицы)
+- 🔍 Анализ динамики показателей
+- 💡 Автоматические рекомендации при отклонениях
+- ➕ Добавление новых анализов
+- 🔐 Система авторизации пользователей
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple).
+## 🛠 Технологии
+- **Flutter** (кроссплатформенная разработка)
+- **Dart** (основной язык)
+- **SQLite** (локальное хранение данных)
+- **Syncfusion Flutter Charts** (визуализация данных)
 
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🖼 Скриншоты
+| Регистрация | Авторизация | Главная |
+|-------------|-------------|---------|
+| <img src="images/m1.png" width=200> | <img src="images/m2.png" width=200> | <img src="images/m3.png" width=200> |
 
-## Assets
+| Анализы (график) | Анализы (таблица) | Добавление |
+|------------------|-------------------|------------|
+| <img src="images/m4.png" width=200> | <img src="images/m5.png" width=200> | <img src="images/m6.png" width=200> |
 
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter
-apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+## 🏗 Архитектура
+Приложение разделено на модули:
+1. **Авторизация/регистрация** (валидация, работа с SQLite)
+2. **Главная страница** (информация о подписке)
+3. **Анализы** (графики, таблицы, рекомендации)
+4. **Добавление данных** (формы ввода)
+5. **Профиль** (личные данные)
